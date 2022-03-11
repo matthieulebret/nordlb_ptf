@@ -289,7 +289,6 @@ def topticket(Nord,Biggest):
     else:
         return 0
 
-
 def isclub(maxtick,mintick):
     if maxtick==mintick:
         return 1
@@ -353,6 +352,18 @@ for sector in sectors[1:]:
             st.metric('NordLB average ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].mean()))
         with col6:
             st.metric('NordLB mean ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].median()))
+
+        over50 = len(maxticket[maxticket['NordLB ticket USDm']>50])
+        over75 = len(maxticket[maxticket['NordLB ticket USDm']>75])
+        over100 = len(maxticket[maxticket['NordLB ticket USDm']>75])
+
+        col7,col8,col9 = st.columns(3)
+        with col7:
+            st.metric('Nb tickets > 50mUSD:',over50)
+        with col8:
+            st.metric('Nb tickets > 75mUSD:',over75)
+        with col9:
+            st.metric('Nb tickets > 100mUSD:',over100)
 
         st.write(maxticket)
 
