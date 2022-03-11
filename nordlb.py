@@ -273,7 +273,15 @@ for deal in deallist:
 nblendDF = pd.DataFrame({'Name':deallist,'Nb lenders':lenderlist})
 
 df = pd.merge(df,nblendDF,on='Name')
-df = df[df['Nb lenders']>1]
+# df = df[df['Nb lenders']>1]
+
+regions.insert(0,'All')
+selectregion = st.selectbox('Select a region',regions)
+
+if selectregion != 'All':
+    df = df[df['region']==selectregion]
+
+regions = regions[1:]
 
 def topticket(Nord,Biggest):
     if Nord == Biggest:
@@ -292,63 +300,66 @@ def isclub(maxtick,mintick):
 sectors = sectors[1:]
 
 for sector in sectors[1:]:
-    sectordf = df[(df['sector']==sector)]
-    # output = sectordf.groupby('Lender')['Ticket USD'].mean()
-    output = pd.pivot_table(sectordf,values='Ticket USD',index='Lender',columns='Name',aggfunc='sum',)
-        # st.write('Number of deals with NLB biggest ticket: ',str(len(output.columns)))
+    try:
+        sectordf = df[(df['sector']==sector)]
+        # output = sectordf.groupby('Lender')['Ticket USD'].mean()
+        output = pd.pivot_table(sectordf,values='Ticket USD',index='Lender',columns='Name',aggfunc='sum',)
+            # st.write('Number of deals with NLB biggest ticket: ',str(len(output.columns)))
 
-    maxticket = pd.DataFrame(output.max(axis=0))
-    maxticket.reset_index(inplace=True)
-    maxticket.columns = ['Name','Max ticket']
+        maxticket = pd.DataFrame(output.max(axis=0))
+        maxticket.reset_index(inplace=True)
+        maxticket.columns = ['Name','Max ticket']
 
-    minticket = pd.DataFrame(output.min(axis=0))
-    minticket.reset_index(inplace=True)
-    minticket.columns = ['Name','Min ticket']
+        minticket = pd.DataFrame(output.min(axis=0))
+        minticket.reset_index(inplace=True)
+        minticket.columns = ['Name','Min ticket']
 
-    nordlb = nordlb[['Name','Ticket USD']]
-    nordlb = pd.DataFrame(nordlb.groupby('Name').sum())
+        nordlb = nordlb[['Name','Ticket USD']]
+        nordlb = pd.DataFrame(nordlb.groupby('Name').sum())
 
-    nordlb.reset_index(inplace=True)
+        nordlb.reset_index(inplace=True)
 
-    maxticket = pd.merge(nordlb,maxticket,on='Name')
-    maxticket = pd.merge(maxticket,minticket,on='Name')
+        maxticket = pd.merge(nordlb,maxticket,on='Name')
+        maxticket = pd.merge(maxticket,minticket,on='Name')
 
-    maxticket.columns = ['Name','NordLB ticket USDm','Max ticket USDm','Min ticket USDm']
+        maxticket.columns = ['Name','NordLB ticket USDm','Max ticket USDm','Min ticket USDm']
 
-    st.subheader(sector)
+        st.subheader(sector)
 
-    maxticket['Top ticket'] = maxticket.apply(lambda x: topticket(x['NordLB ticket USDm'],x['Max ticket USDm']),axis=1)
-    maxticket['Is club deal'] = maxticket.apply(lambda x: isclub(x['Max ticket USDm'],x['Min ticket USDm']),axis=1)
+        maxticket['Top ticket'] = maxticket.apply(lambda x: topticket(x['NordLB ticket USDm'],x['Max ticket USDm']),axis=1)
+        maxticket['Is club deal'] = maxticket.apply(lambda x: isclub(x['Max ticket USDm'],x['Min ticket USDm']),axis=1)
 
-    nbdeals = len(output.columns)
-    clubs = maxticket['Is club deal'].sum()
-    syndic = nbdeals - clubs
-    toptickets = maxticket['Top ticket'].sum()
-    topticsynd = maxticket[(maxticket['Top ticket']==1)&(maxticket['Is club deal']==0)]['Top ticket'].sum()
+        nbdeals = len(output.columns)
+        clubs = maxticket['Is club deal'].sum()
+        syndic = nbdeals - clubs
+        toptickets = maxticket['Top ticket'].sum()
+        topticsynd = maxticket[(maxticket['Top ticket']==1)&(maxticket['Is club deal']==0)]['Top ticket'].sum()
 
-    st.metric('Number of deals:',nbdeals)
-    col1,col2,col3 = st.columns(3)
-    with col1:
-        st.metric('Number of clubs:',clubs)
-    with col2:
-        st.metric('Number of synd deals:',syndic)
-    with col3:
-        st.metric('Number of top tickets in syndic deals:',topticsynd)
-    # st.write('Number of deals: ',str(len(output.columns)))
-    # st.write('Number of top tickets: ',str(maxticket['Top ticket'].sum()))
+        st.metric('Number of deals:',nbdeals)
+        col1,col2,col3 = st.columns(3)
+        with col1:
+            st.metric('Number of clubs:',clubs)
+        with col2:
+            st.metric('Number of synd deals:',syndic)
+        with col3:
+            st.metric('Number of top tickets in syndic deals:',topticsynd)
+        # st.write('Number of deals: ',str(len(output.columns)))
+        # st.write('Number of top tickets: ',str(maxticket['Top ticket'].sum()))
 
-    col4,col5,col6 = st.columns(3)
-    with col4:
-        st.metric('NordLB max ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].max()))
-    with col5:
-        st.metric('NordLB average ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].mean()))
-    with col6:
-        st.metric('NordLB mean ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].median()))
+        col4,col5,col6 = st.columns(3)
+        with col4:
+            st.metric('NordLB max ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].max()))
+        with col5:
+            st.metric('NordLB average ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].mean()))
+        with col6:
+            st.metric('NordLB mean ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].median()))
 
-    st.write(maxticket)
+        st.write(maxticket)
 
-    with st.expander('Show detail by deal'):
-        output
+        with st.expander('Show detail by deal'):
+            output
+    except:
+        pass
 
 with st.form('my_form'):
     regionselect = st.multiselect('Select regions',regions,['Australasia','Asia'])
