@@ -355,7 +355,7 @@ for sector in sectors[1:]:
 
         over50 = len(maxticket[maxticket['NordLB ticket USDm']>50])
         over75 = len(maxticket[maxticket['NordLB ticket USDm']>75])
-        over100 = len(maxticket[maxticket['NordLB ticket USDm']>75])
+        over100 = len(maxticket[maxticket['NordLB ticket USDm']>100])
 
         col7,col8,col9 = st.columns(3)
         with col7:
