@@ -339,11 +339,11 @@ for sector in sectors[1:]:
 
     col4,col5,col6 = st.columns(3)
     with col4:
-        st.metric('NordLB max ticket:','{:,.2f}'.format(maxticket['NordLB ticket USDm'].max()))
+        st.metric('NordLB max ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].max()))
     with col5:
-        st.metric('NordLB average ticket:','{:,.2f}'.format(maxticket['NordLB ticket USDm'].mean()))
+        st.metric('NordLB average ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].mean()))
     with col6:
-        st.metric('NordLB mean ticket:','{:,.2f}'.format(maxticket['NordLB ticket USDm'].median()))
+        st.metric('NordLB mean ticket:','{:,.2f} USDm'.format(maxticket['NordLB ticket USDm'].median()))
 
     st.write(maxticket)
 
